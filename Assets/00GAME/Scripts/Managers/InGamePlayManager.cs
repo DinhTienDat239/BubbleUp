@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
+using TMPro;
 
 public class InGamePlayManager : Singleton<InGamePlayManager>
 {
@@ -10,6 +12,7 @@ public class InGamePlayManager : Singleton<InGamePlayManager>
     public bool isSwitching;
     public bool blacked;
 
+    [Header("In Game Variables")]
     //In Game Variables
     [SerializeField]
     public float bubMoveSpeed;
@@ -25,279 +28,64 @@ public class InGamePlayManager : Singleton<InGamePlayManager>
     [SerializeField]
     Camera _mainCam;
 
-    [SerializeField]
-    List<GameObject> pressR = new List<GameObject>();
-
     [Header("Levels")]
     public int level;
+    [SerializeField]
+    Transform LevelContainer;
 
     [SerializeField]
-    public GameObject level1;
+    public List<GameObject> levelPrefabs = new List<GameObject>();
+
     [SerializeField]
-    public Vector2 level1Spawn;
+    public List<int> bulletsPerLevel = new List<int>();
+
+    private GameObject _currentLevelInstance;
+    private Dictionary<int, int> _levelToPrefabIndex = new Dictionary<int, int>();
+    
+    [Header("Bullet Accumulation System")]
+    private int _accumulatedBullets = 0;
+    private bool _isFirstLevel = true;
+    
+    [Header("Lives System")]
+    private int _currentLives = 0;
+    private Dictionary<int, int> _levelBulletCount = new Dictionary<int, int>();
+    private bool _isLevelCompleted = false; // Track if level was completed vs lost
+    
+    [Header("Score System")]
+    private int _currentScore = 0;
+    private int _highestScore = 0;
+    private int _bulletsShotInCurrentLevel = 0; // Track bullets shot in current level
     [SerializeField]
-    public GameObject level2;
-    [SerializeField]
-    public Vector2 level2Spawn;
-    [SerializeField]
-    public GameObject level3;
-    [SerializeField]
-    public Vector2 level3Spawn;
-    [SerializeField]
-    public GameObject level4;
-    [SerializeField]
-    public Vector2 level4Spawn;
-    [SerializeField]
-    public GameObject level5;
-    [SerializeField]
-    public Vector2 level5Spawn;
-    [SerializeField]
-    public GameObject level6;
-    [SerializeField]
-    public Vector2 level6Spawn;
-    [SerializeField]
-    public GameObject level7;
-    [SerializeField]
-    public Vector2 level7Spawn;
-    [SerializeField]
-    public GameObject level8;
-    [SerializeField]
-    public Vector2 level8Spawn;
-    [SerializeField]
-    public GameObject level9;
-    [SerializeField]
-    public Vector2 level9Spawn;
-    [SerializeField]
-    public GameObject level10;
-    [SerializeField]
-    public Vector2 level10Spawn;
-    [SerializeField]
-    public GameObject level11;
-    [SerializeField]
-    public Vector2 level11Spawn;
-    [SerializeField]
-    public GameObject level12;
-    [SerializeField]
-    public Vector2 level12Spawn;
-    [SerializeField]
-    public Vector2 level13Spawn;
-    [SerializeField]
-    public Vector2 level14Spawn;
-    [SerializeField]
-    public Vector2 level15Spawn;
-    [SerializeField]
-    public Vector2 level16Spawn;
-    [SerializeField]
-    public Vector2 level17Spawn;
-    [SerializeField]
-    public Vector2 level18Spawn;
-    [SerializeField]
-    public Vector2 level19Spawn;
-    [SerializeField]
-    public Vector2 level20Spawn;
-    [SerializeField]
-    public Vector2 level21Spawn;
-    [SerializeField]
-    public Vector2 level22Spawn;
-    [SerializeField]
-    public Vector2 level23Spawn;
-    [SerializeField]
-    public Vector2 level24Spawn;
-    [SerializeField]
-    public Vector2 level25Spawn;
+    TextMeshProUGUI _scoreText;
+    
     //Levels
     // Start is called before the first frame update
     void Start()
     {
         blacked = false;
         isPause = false;
-        level = GameManager.instance.savedLevel;
-        if (level == 0)
+        level = 0;
+
+        // Initialize bullet accumulation system
+        if (_isFirstLevel)
         {
-            BubbleController.instance.transform.position = level1Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(0, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
+            _accumulatedBullets = GameManager.instance.initialBulletCount;
+            _isFirstLevel = false;
         }
-        if (level == 1)
-        {
-            BubbleController.instance.transform.position = level2Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(25, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 2)
-        {
-            BubbleController.instance.transform.position = level3Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(50, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 3)
-        {
-            BubbleController.instance.transform.position = level4Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(75, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 4)
-        {
-            BubbleController.instance.transform.position = level5Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(100, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 5)
-        {
-            BubbleController.instance.transform.position = level6Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(125, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 6)
-        {
-            BubbleController.instance.transform.position = level7Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(150, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 7)
-        {
-            BubbleController.instance.transform.position = level8Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(175, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 8)
-        {
-            BubbleController.instance.transform.position = level9Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(200, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 9)
-        {
-            BubbleController.instance.transform.position = level10Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(225, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 10)
-        {
-            BubbleController.instance.transform.position = level11Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(250, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 11)
-        {
-            BubbleController.instance.transform.position = level12Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(275, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 12)
-        {
-            BubbleController.instance.transform.position = level13Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(300, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 13)
-        {
-            BubbleController.instance.transform.position = level14Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(325, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 3;
-        }
-        if (level == 14)
-        {
-            BubbleController.instance.transform.position = level15Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(350, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 1;
-        }
-        if (level == 15)
-        {
-            BubbleController.instance.transform.position = level16Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(375, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 16)
-        {
-            BubbleController.instance.transform.position = level17Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(400, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 4;
-        }
-        if (level == 17)
-        {
-            BubbleController.instance.transform.position = level18Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(425, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 1;
-        }
-        if (level == 18)
-        {
-            BubbleController.instance.transform.position = level19Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(450, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 19)
-        {
-            BubbleController.instance.transform.position = level20Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(475, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 1;
-        }
-        if (level == 20)
-        {
-            BubbleController.instance.transform.position = level21Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(500, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 4;
-        }
-        if (level == 21)
-        {
-            BubbleController.instance.transform.position = level22Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(525, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 4;
-        }
-        if (level == 22)
-        {
-            BubbleController.instance.transform.position = level23Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(550, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 4;
-        }
-        if (level == 23)
-        {
-            BubbleController.instance.transform.position = level24Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(575, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 5;
-        }
-        if (level == 24)
-        {
-            BubbleController.instance.transform.position = level25Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(600, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 4;
-        }
-        if (level > 24)
-        {
-            BubbleController.instance.transform.position = level1Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(0, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-            level = 0;
-            GameManager.instance.savedLevel = 0;
-        }
+        
+        // Initialize lives system
+        _currentLives = GameManager.instance.initialLives;
+        
+        // Initialize score system
+        _currentScore = 0;
+        _highestScore = PlayerPrefs.GetInt(CONSTANTS.HIGH_SCORE_KEY, 0);
+        _bulletsShotInCurrentLevel = 0;
+
+        SpawnCurrentLevel();
         isSwitching = false;
-        InvokeRepeating("RunTuTo", 0, 2f);
+        
+        // Reset score for new game
+        ResetScore();
     }
 
     // Update is called once per frame
@@ -319,218 +107,300 @@ public class InGamePlayManager : Singleton<InGamePlayManager>
 
             isSwitching = true;
             StartCoroutine(PlayOver());
-        }
-    }
-    void RunTuTo()
-    {
-        StartCoroutine(RunTuToIE());
-    }
-
-    IEnumerator RunTuToIE()
-    {
-        foreach (GameObject o in pressR)
-        {
-            LeanTween.rotateZ(o, -1.2f, 1f).setEase(LeanTweenType.easeOutQuad);
-        }
-        yield return new WaitForSeconds(1f);
-        foreach (GameObject o in pressR)
-        {
-            LeanTween.rotateZ(o, 1.2f, 1f).setEase(LeanTweenType.easeOutQuad);
-        }
+        }UpdateHighestScoreDisplay();
     }
     IEnumerator PlayOver()
     {
-
+        Debug.Log("PlayOver");
         yield return new WaitForSeconds(0.25f);
         UIPlayScene.instance.BlackSreenFadeIn();
         yield return new WaitForSeconds(0.5f);
         blacked = true;
 
-        if (level == 0)
+        if (_isLevelCompleted)
         {
-            BubbleController.instance.transform.position = level1Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(0, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
+            // Level was completed - advance to next level
+            AdvanceToNextLevel();
+            level++;
+            GameManager.instance.savedLevel = level;
+            
+            if (level > 24)
+            {
+                UIPlayScene.instance.PlayEnding();
+            }
+            else
+            {
+                // Spawn next level
+                SpawnCurrentLevel();
+            }
+            
+            // Reset completion flag
+            _isLevelCompleted = false;
         }
-        if (level == 1)
+        else
         {
-            BubbleController.instance.transform.position = level2Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(25, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
+            // Level was failed - decrease lives
+            _currentLives--;
+            
+            if (level > 24)
+            {
+                UIPlayScene.instance.PlayEnding();
+            }
+            else if (_currentLives <= 0)
+            {
+                // No more lives - game over, check for high score
+                CheckAndSaveHighScore();
+                // Go to main menu
+                GameManager.instance.ChangeState(GameManager.GAME_STATE.MAINMENU);
+            }
+            else
+            {
+                // Still have lives - replay the level with original bullet count
+                SpawnCurrentLevel();
+            }
         }
-        if (level == 2)
-        {
-            BubbleController.instance.transform.position = level3Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(50, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 3)
-        {
-            BubbleController.instance.transform.position = level4Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(75, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 4)
-        {
-            BubbleController.instance.transform.position = level5Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(100, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 5)
-        {
-            BubbleController.instance.transform.position = level6Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(125, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 6)
-        {
-            BubbleController.instance.transform.position = level7Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(150, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 7)
-        {
-            BubbleController.instance.transform.position = level8Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(175, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 8)
-        {
-            BubbleController.instance.transform.position = level9Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(200, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 9)
-        {
-            BubbleController.instance.transform.position = level10Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(225, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 10)
-        {
-            BubbleController.instance.transform.position = level11Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(250, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 11)
-        {
-            BubbleController.instance.transform.position = level12Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(275, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 12)
-        {
-            BubbleController.instance.transform.position = level13Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(300, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 13)
-        {
-            BubbleController.instance.transform.position = level14Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(325, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 3;
-        }
-        if (level == 14)
-        {
-            BubbleController.instance.transform.position = level15Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(350, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 1;
-        }
-        if (level == 15)
-        {
-            BubbleController.instance.transform.position = level16Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(375, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 16)
-        {
-            BubbleController.instance.transform.position = level17Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(400, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 4;
-        }
-        if (level == 17)
-        {
-            BubbleController.instance.transform.position = level18Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(425, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 1;
-        }
-        if (level == 18)
-        {
-            BubbleController.instance.transform.position = level19Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(450, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 19)
-        {
-            BubbleController.instance.transform.position = level20Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(475, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 2;
-        }
-        if (level == 20)
-        {
-            BubbleController.instance.transform.position = level21Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(500, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 4;
-        }
-        if (level == 21)
-        {
-            BubbleController.instance.transform.position = level22Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(525, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 4;
-        }
-        if (level == 22)
-        {
-            BubbleController.instance.transform.position = level23Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(550, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 4;
-        }
-        if (level == 23)
-        {
-            BubbleController.instance.transform.position = level24Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(575, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 5;
-        }
-        if (level == 24)
-        {
-            BubbleController.instance.transform.position = level25Spawn;
-            BubbleController.instance.SpawnBubble();
-            _mainCam.transform.position = new Vector3(600, 0, _mainCam.transform.position.z);
-            MouseCursorController.instance.bullet = 4;
-        }
-        if (level > 24)
-        {
-            UIPlayScene.instance.PlayEnding();
-        }
+        
         yield return new WaitForSeconds(0.25f);
         blacked = false;
         UIPlayScene.instance.BlackSreenFadeOut();
         yield return new WaitForSeconds(0.4f);
         isSwitching = false;
+    }
 
+    private void SpawnCurrentLevel()
+    {
+        if (_currentLevelInstance != null)
+        {
+            Destroy(_currentLevelInstance);
+            _currentLevelInstance = null;
+        }
 
+        // Reset level completion flag when spawning a new level
+        _isLevelCompleted = false;
+        
+        // Reset bullets shot counter for new level
+        _bulletsShotInCurrentLevel = 0;
+
+        if (levelPrefabs != null && levelPrefabs.Count > 0)
+        {
+            int prefabIndex = GetPrefabIndexForLevel(level);
+            if (prefabIndex >= 0 && prefabIndex < levelPrefabs.Count)
+            {
+                GameObject prefab = levelPrefabs[prefabIndex];
+                if (prefab != null)
+                {
+                    if (LevelContainer != null)
+                        _currentLevelInstance = Instantiate(prefab, Vector3.zero, Quaternion.identity, LevelContainer);
+                    else
+                        _currentLevelInstance = Instantiate(prefab, Vector3.zero, Quaternion.identity);
+                }
+            }
+        }
+
+        if (BubbleController.instance != null)
+        {
+            BubbleController.instance.transform.position = new Vector2(0,-3.5f);
+            BubbleController.instance.SpawnBubble();
+        }
+
+        if (_mainCam != null)
+        {
+            _mainCam.transform.position = new Vector3(0, 0, _mainCam.transform.position.z);
+        }
+
+        // Set bullets using accumulated system instead of per-level fixed amounts
+        if (MouseCursorController.instance != null)
+        {
+            // Check if this is the first time playing this level
+            if (!_levelBulletCount.ContainsKey(level))
+            {
+                // First time playing this level - use accumulated bullets
+                _levelBulletCount[level] = _accumulatedBullets;
+            }
+            else
+            {
+                // Replaying this level - restore the bullet count from when first played
+                _accumulatedBullets = _levelBulletCount[level];
+            }
+            
+            MouseCursorController.instance.bullet = _accumulatedBullets;
+        }
+    }
+    private int GetPrefabIndexForLevel(int levelIndex)
+    {
+        if (levelPrefabs == null || levelPrefabs.Count == 0)
+            return -1;
+        int idx;
+        if (_levelToPrefabIndex.TryGetValue(levelIndex, out idx))
+            return idx;
+        // No persistence: do not read PlayerPrefs
+        // Build used set from current mappings
+        HashSet<int> used = new HashSet<int>();
+        foreach (var pair in _levelToPrefabIndex)
+        {
+            if (pair.Value >= 0 && pair.Value < levelPrefabs.Count)
+                used.Add(pair.Value);
+        }
+        // Build available list excluding used
+        List<int> available = new List<int>();
+        for (int i = 0; i < levelPrefabs.Count; i++)
+        {
+            if (!used.Contains(i))
+                available.Add(i);
+        }
+        if (available.Count == 0)
+        {
+            // all used -> start a new cycle
+            available.Clear();
+            for (int i = 0; i < levelPrefabs.Count; i++)
+                available.Add(i);
+            _levelToPrefabIndex.Clear();
+        }
+        int chosen = available[Random.Range(0, available.Count)];
+        _levelToPrefabIndex[levelIndex] = chosen;
+        // No persistence: do not write PlayerPrefs
+        return chosen;
+    }
+    
+    public void AdvanceToNextLevel()
+    {
+        // Calculate score for completing this level using new formula
+        int levelScore = CalculateLevelScore();
+        _currentScore += levelScore;
+        
+        Debug.Log($"Level {level} completed! Bullets shot: {_bulletsShotInCurrentLevel}, Level Score: {levelScore}, Total Score: {_currentScore}");
+        
+        // Add 2 bullets when advancing to next level
+        _accumulatedBullets += 2;
+        
+        // Ensure bullets don't go below 0
+        if (_accumulatedBullets < 0)
+            _accumulatedBullets = 0;
+    }
+    
+    public void CompleteLevel()
+    {
+        // Mark level as completed and trigger level advancement
+        _isLevelCompleted = true;
+        over = true;
+    }
+    
+    public void ConsumeBullet()
+    {
+        _accumulatedBullets--;
+        if (_accumulatedBullets < 0)
+            _accumulatedBullets = 0;
+        
+        // Track bullets shot in current level
+        _bulletsShotInCurrentLevel++;
+    }
+    
+    public int GetCurrentBulletCount()
+    {
+        return _accumulatedBullets;
+    }
+    
+    public int GetCurrentLives()
+    {
+        return _currentLives;
+    }
+    
+    public int GetBulletsShotInCurrentLevel()
+    {
+        return _bulletsShotInCurrentLevel;
+    }
+    
+    // Score System Methods
+    public void AddScore(int points)
+    {
+        _currentScore += points;
+        if (_currentScore < 0)
+            _currentScore = 0;
+    }
+    
+    public void SetScore(int score)
+    {
+        _currentScore = score;
+        if (_currentScore < 0)
+            _currentScore = 0;
+    }
+    
+    public int GetCurrentScore()
+    {
+        return _currentScore;
+    }
+    
+    public int GetHighestScore()
+    {
+        return _highestScore;
+    }
+    
+    private void CheckAndSaveHighScore()
+    {
+        // Use current accumulated score instead of calculating final score
+        int finalScore = _currentScore;
+        
+        // Check if this is a new high score
+        if (finalScore > _highestScore)
+        {
+            _highestScore = finalScore;
+            PlayerPrefs.SetInt(CONSTANTS.HIGH_SCORE_KEY, _highestScore);
+            PlayerPrefs.Save();
+            Debug.Log("New High Score: " + _highestScore);
+        }
+        
+        Debug.Log("Game Over! Final Score: " + finalScore + " | High Score: " + _highestScore);
+    }
+    private void UpdateHighestScoreDisplay()
+    {
+        int highestScore = _currentScore;
+        if (_scoreText != null)
+        {
+            _scoreText.text = "Score: " + highestScore.ToString();
+        }
+    }
+    private int CalculateLevelScore()
+    {
+        // New formula: (500 / số lượng bóng đã bắn ra trong màn) * (1 + (màn vừa vượt qua - 1) * 0.2)
+        
+        // Prevent division by zero
+        if (_bulletsShotInCurrentLevel <= 0)
+            _bulletsShotInCurrentLevel = 1;
+        
+        // Calculate base score: 500 / bullets shot
+        float baseScore = 500f / _bulletsShotInCurrentLevel;
+        
+        // Calculate level multiplier: 1 + (level - 1) * 0.2
+        float levelMultiplier = 1f + (level - 1) * 0.2f;
+        
+        // Final level score
+        int finalLevelScore = Mathf.RoundToInt(baseScore * levelMultiplier);
+        
+        return finalLevelScore;
+    }
+    
+    public void ResetScore()
+    {
+        _currentScore = 0;
+        _bulletsShotInCurrentLevel = 0;
+    }
+    
+    public void ResetGame()
+    {
+        _currentScore = 0;
+        _currentLives = GameManager.instance.initialLives;
+        _accumulatedBullets = GameManager.instance.initialBulletCount;
+        _isFirstLevel = true;
+        level = 0;
+        GameManager.instance.savedLevel = 0;
+        _levelBulletCount.Clear();
+        _levelToPrefabIndex.Clear();
+        _bulletsShotInCurrentLevel = 0;
+    }
+    
+    public void StartNewGame()
+    {
+        ResetGame();
+        SpawnCurrentLevel();
     }
 }

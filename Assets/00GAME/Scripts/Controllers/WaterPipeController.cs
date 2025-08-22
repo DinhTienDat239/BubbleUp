@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class WaterPipeController : MonoBehaviour
 {
@@ -28,7 +29,7 @@ public class WaterPipeController : MonoBehaviour
     {
         if (InGamePlayManager.instance.blacked)
         {
-            LeanTween.cancel(water.gameObject);
+            DOTween.Kill(water.gameObject);
             timer = firstTimeSpray;
             StopAllCoroutines();
             Init();
@@ -54,11 +55,11 @@ public class WaterPipeController : MonoBehaviour
     IEnumerator SprayWaterIE()
     {
         water.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, 0);
-        LeanTween.color(water, Color.white, 0.15f);
+        water.GetComponent<SpriteRenderer>().DOColor(Color.white, 0.15f);
         water.transform.localPosition = Vector3.zero;
-        LeanTween.move(water.gameObject, worldWaterPos, 0.1f);
+        water.transform.DOMove(worldWaterPos, 0.1f);
         yield return new WaitForSeconds(2.5f);
-        LeanTween.color(water, new Color(0, 0, 0, 0), 0.05f);
+        water.GetComponent<SpriteRenderer>().DOColor(new Color(0, 0, 0, 0), 0.05f);
         yield return new WaitForSeconds(0.25f);
         water.transform.position = this.transform.position;
     }

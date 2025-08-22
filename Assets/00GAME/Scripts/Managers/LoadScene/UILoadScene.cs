@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class UILoadScene : Singleton<UILoadScene>
 {
@@ -22,12 +23,12 @@ public class UILoadScene : Singleton<UILoadScene>
     {
         AudioManager.instance.PlayEffect(_start, false);
         _imgTransEffect.transform.localPosition = new Vector2(3500, 0);
-        LeanTween.move(_imgTransEffect.rectTransform, Vector2.zero, 0.5f).setEase(LeanTweenType.easeOutQuad);
+        _imgTransEffect.rectTransform.DOAnchorPos(Vector2.zero, 0.5f).SetEase(Ease.OutQuad);
     }
     public void SceneTransitionEffectOut()
     {
         AudioManager.instance.PlayEffect(_end, false);
-        LeanTween.move(_imgTransEffect.rectTransform, new Vector2(-3500, 0), 0.5f).setEase(LeanTweenType.easeInQuad);
+        _imgTransEffect.rectTransform.DOAnchorPos(new Vector2(-3500, 0), 0.5f).SetEase(Ease.InQuad);
         Invoke("UnloadLoadScene", 0.5f);
     }
     public void UnloadLoadScene()

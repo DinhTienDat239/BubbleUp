@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class MovingObjectController : MonoBehaviour
 {
@@ -48,7 +49,7 @@ public class MovingObjectController : MonoBehaviour
     {
         if (InGamePlayManager.instance.blacked)
         {
-            LeanTween.cancel(this.gameObject);
+            DOTween.Kill(this.gameObject);
             timer = standTime;
             Init();
             return;
@@ -79,12 +80,12 @@ public class MovingObjectController : MonoBehaviour
         if ((Vector2)this.transform.localPosition == _rightPoint)
         {
             spriteRenderer.flipX = false;
-            LeanTween.move(this.gameObject, _worldLeftPoint, moveTime);
+            this.transform.DOMove(_worldLeftPoint, moveTime);
         }
         if ((Vector2)this.transform.localPosition == _leftPoint)
         {
             spriteRenderer.flipX = true;
-            LeanTween.move(this.gameObject, _worldRightPoint, moveTime);
+            this.transform.DOMove(_worldRightPoint, moveTime);
         }
     }
 }

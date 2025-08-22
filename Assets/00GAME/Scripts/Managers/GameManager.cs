@@ -12,6 +12,15 @@ public class GameManager : Singleton<GameManager>
     public bool level;
     public int savedLevel;
     public bool isShowAd = false;
+    
+    [Header("Bullet System")]
+    [SerializeField]
+    public int initialBulletCount = 3;
+    
+    [Header("Lives System")]
+    [SerializeField]
+    public int initialLives = 3;
+    
     public enum GAME_STATE
     {
         MAINMENU = 0,
@@ -48,7 +57,6 @@ public class GameManager : Singleton<GameManager>
             Cursor.visible = false;
             if (gameState == GAME_STATE.MAINMENU)
             {
-                
                 LoadSceneManager.instance.LoadScene("PlayScene", "MainMenuScene");
             }
         }

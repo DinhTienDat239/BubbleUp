@@ -48,7 +48,10 @@ public class MouseCursorController : Singleton<MouseCursorController>
             obj.GetComponent<Bubble>().Init();
             obj.GetComponent<Bubble>().Shoot(_shootDir);
             obj.GetComponent<Bubble>().Ble();
-            bullet--;
+            
+            // Consume bullet through the accumulation system
+            InGamePlayManager.instance.ConsumeBullet();
+            bullet = InGamePlayManager.instance.GetCurrentBulletCount();
         }
     }
 }

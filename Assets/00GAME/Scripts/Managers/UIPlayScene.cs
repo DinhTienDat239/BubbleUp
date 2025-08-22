@@ -3,15 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class UIPlayScene : Singleton<UIPlayScene>
 {
     [SerializeField]
-    GameObject _pauseScreen;
-    [SerializeField]
     Image _blackScreen;
-    [SerializeField]
-    Button _skipLevelBtn;
 
     [SerializeField]
     List<Sprite> numbs = new List<Sprite>();
@@ -19,6 +16,14 @@ public class UIPlayScene : Singleton<UIPlayScene>
     Image _bulletTxt;
     [SerializeField]
     Image _imageTxt;
+    [SerializeField]
+    Image _livesTxt;
+    
+    [Header("Score Display")]
+    [SerializeField]
+    Image _scoreTxt;
+    [SerializeField]
+    Image _scoreLabel; // Optional: label for "SCORE" text
 
     [SerializeField]
     GameObject endingScreen;
@@ -28,71 +33,77 @@ public class UIPlayScene : Singleton<UIPlayScene>
     List<Sprite> endings = new List<Sprite>();
     [SerializeField]
     Button toMenu;
-    [SerializeField]
-    Slider _progressSlider;
-    [SerializeField]
-    Image _progressSliderTop;
-    [SerializeField]
-    Image tuto;
-    [SerializeField]
-    Image tuto2;
     // Start is called before the first frame update
     void Start()
     {
         endingScreen.gameObject.SetActive(false);
         _blackScreen.gameObject.SetActive(false);
-        _pauseScreen.SetActive(false); endingScreen.SetActive(false);
-        InvokeRepeating("RunTuTo", 0, 2f);
-    }
-    public void SkipLevel()
-    {
-        GameDistribution.Instance.ShowRewardedAd();
-        _skipLevelBtn.interactable = true;
+        endingScreen.SetActive(false);
     }
     // Update is called once per frame
     void Update()
     {
-        if(InGamePlayManager.instance.level == 0 || InGamePlayManager.instance.level == 24)
-        {
-            _progressSliderTop.gameObject.SetActive(false);
-        }
-        else
-        {
-            _progressSliderTop.gameObject.SetActive(true);
-        }
         if(InGamePlayManager.instance.level <= 24)
         {
             _bulletTxt.sprite = numbs[MouseCursorController.instance.bullet];
-            _imageTxt.sprite = numbs[InGamePlayManager.instance.level + 1];
+            
+            // Display lives count
+            if (_livesTxt != null)
+            {
+                int lives = InGamePlayManager.instance.GetCurrentLives();
+                if (lives >= 0 && lives < numbs.Count)
+                {
+                    _livesTxt.sprite = numbs[lives];
+                }
+            }
+            
+            // Display current score
+            if (_scoreTxt != null)
+            {
+                int score = InGamePlayManager.instance.GetCurrentScore();
+                if (score >= 0 && score < numbs.Count)
+                {
+                    _scoreTxt.sprite = numbs[score];
+                }
+                else
+                {
+                    // For scores beyond the sprite list, show a default or calculate display
+                    // You might want to add more sprite numbers or use TextMeshPro for larger numbers
+                    _scoreTxt.sprite = numbs[Mathf.Min(score, numbs.Count - 1)];
+                }
+            }
         }
-        UpdateProgressSlider();
+        
+        // Update score display when score changes
+        UpdateScoreDisplay();
     }
-    void RunTuTo()
+    
+    private void UpdateScoreDisplay()
     {
-        StartCoroutine(RunTuToIE());
-    }
-    IEnumerator RunTuToIE()
-    {
-        LeanTween.rotateZ(tuto.transform.gameObject, -1.2f, 1f).setEase(LeanTweenType.easeOutQuad);
-        LeanTween.rotateZ(tuto2.transform.gameObject, -1.2f, 1f).setEase(LeanTweenType.easeOutQuad);
-        yield return new WaitForSeconds(1f);
-        LeanTween.rotateZ(tuto.transform.gameObject, 1.2f, 1f).setEase(LeanTweenType.easeOutQuad);
-        LeanTween.rotateZ(tuto2.transform.gameObject, 1.2f, 1f).setEase(LeanTweenType.easeOutQuad);
-    }
-    public void UpdateProgressSlider()
-    {
-        _progressSlider.value = ((float)InGamePlayManager.instance.level)/25;
+        if (_scoreTxt != null)
+        {
+            int score = InGamePlayManager.instance.GetCurrentScore();
+            if (score >= 0 && score < numbs.Count)
+            {
+                _scoreTxt.sprite = numbs[score];
+            }
+            else
+            {
+                // For scores beyond the sprite list, show a default or calculate display
+                _scoreTxt.sprite = numbs[Mathf.Min(score, numbs.Count - 1)];
+            }
+        }
     }
     public void BlackSreenFadeIn()
     {
         _blackScreen.color = new Color(0, 0, 0, 0);
         _blackScreen.gameObject.SetActive(true);
-        LeanTween.color(_blackScreen.rectTransform, Color.black, 0.4f);
+        _blackScreen.DOColor(Color.black, 0.4f);
     }
     public void BlackSreenFadeOut()
     {
         _blackScreen.color = Color.black;
-        LeanTween.color(_blackScreen.rectTransform, new Color(0,0,0,0), 0.4f);
+        _blackScreen.DOColor(new Color(0,0,0,0), 0.4f);
         Invoke("TurnOffBlackScreen",0.5f);
     }
     void TurnOffBlackScreen()
@@ -122,14 +133,9 @@ public class UIPlayScene : Singleton<UIPlayScene>
         GameManager.instance.ChangeState(GameManager.GAME_STATE.MAINMENU);
     }
     #region Pause Screen
-    public void ShowPauseScreen()
-    {
-        _pauseScreen.SetActive(true);
-    }
     public void ContinueBtn()
     {
         InGamePlayManager.instance.isPause = false;
-        _pauseScreen.SetActive(false);
     }
     public void MenuBtn()
     {

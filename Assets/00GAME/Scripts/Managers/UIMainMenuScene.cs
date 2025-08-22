@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
+using TMPro;
 
 public class UIMainMenuScene : MonoBehaviour
 {
@@ -46,6 +48,8 @@ public class UIMainMenuScene : MonoBehaviour
     Button _playBtn;
     [SerializeField]
     Button _settingBtn;
+    [SerializeField]
+    TextMeshProUGUI _highestScoreTxt;
     [Header("Cut Scene Components")]
     [SerializeField]
     GameObject cutSceneScreen;
@@ -69,7 +73,6 @@ public class UIMainMenuScene : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GameDistribution.Instance.ShowAd();
         Init();
     }
 
@@ -98,12 +101,15 @@ public class UIMainMenuScene : MonoBehaviour
         AudioManager.instance.PlayBG(_bgMusic,false);
         _playBtn.transform.localScale = Vector3.zero;
         _settingBtn.transform.localScale = Vector3.zero;
-        LeanTween.scale(_playBtn.gameObject, Vector3.one, 0.5f);
-        LeanTween.scale(_settingBtn.gameObject, Vector3.one, 0.5f);
+        _playBtn.gameObject.transform.DOScale(Vector3.one, 0.5f);
+        _settingBtn.gameObject.transform.DOScale(Vector3.one, 0.5f);
 
         _mainScreen.SetActive(true);
         _settingScreen.SetActive(false);
         cutSceneScreen.gameObject.SetActive(false);
+
+        // Update highest score display
+        UpdateHighestScoreDisplay();
 
         InvokeRepeating("RunAnimBG", 0, 0.2f);
         InvokeRepeating("RunButtonAnim", 0, 2f);
@@ -113,7 +119,7 @@ public class UIMainMenuScene : MonoBehaviour
     IEnumerator FlashScreen()
     {
         flash.color = new Color(0, 0, 0);
-        LeanTween.color(flash.rectTransform, Color.white, 0.5f);
+        flash.DOColor(Color.white, 0.5f);
 
         yield return new WaitForSeconds(0.5f);
         int i = 0;
@@ -124,7 +130,7 @@ public class UIMainMenuScene : MonoBehaviour
             i++;
         }
         yield return new WaitForSeconds(0.5f);
-        LeanTween.color(flash.rectTransform, new Color(0, 0, 0,0) , 0.5f);
+        flash.DOColor(new Color(0, 0, 0, 0), 0.5f);
         yield return new WaitForSeconds(0.5f);
         flash.gameObject.SetActive(false);
 
@@ -135,7 +141,7 @@ public class UIMainMenuScene : MonoBehaviour
         {
             cutSceneScreen.gameObject.SetActive(true);
             cutSceneBG.color = new Color(0, 0, 0, 0);
-            LeanTween.color(cutSceneBG.rectTransform, Color.white, 1f);
+            cutSceneBG.DOColor(Color.white, 1f);
             yield return new WaitForSeconds(1f);
             int index = 0;
             while (index < cutSceneSprites.Count)
@@ -218,9 +224,9 @@ public class UIMainMenuScene : MonoBehaviour
     IEnumerator RunTitleAnimIE()
     {
 
-        LeanTween.rotateZ(title.gameObject, -1.5f, 1f).setEase(LeanTweenType.easeOutQuad);
+        title.gameObject.transform.DORotate(new Vector3(0, 0, -1.5f), 1f).SetEase(Ease.OutQuad);
         yield return new WaitForSeconds(1f);
-        LeanTween.rotateZ(title.gameObject, 1.5f, 1f).setEase(LeanTweenType.easeOutQuad);
+        title.gameObject.transform.DORotate(new Vector3(0, 0, 1.5f), 1f).SetEase(Ease.OutQuad);
     }
     void RunSettingsAnim()
     {
@@ -297,11 +303,20 @@ public class UIMainMenuScene : MonoBehaviour
     IEnumerator RunButtonAnimIE()
     {
 
-        LeanTween.rotateZ(_playBtn.gameObject, 1.75f, 1f).setEase(LeanTweenType.easeOutQuad);
-        LeanTween.rotateZ(_settingBtn.gameObject, 1.75f, 1f).setEase(LeanTweenType.easeOutQuad);
+        _playBtn.gameObject.transform.DORotate(new Vector3(0, 0, 1.75f), 1f).SetEase(Ease.OutQuad);
+        _settingBtn.gameObject.transform.DORotate(new Vector3(0, 0, 1.75f), 1f).SetEase(Ease.OutQuad);
         yield return new WaitForSeconds(1f);
-        LeanTween.rotateZ(_playBtn.gameObject, -1.75f, 1f).setEase(LeanTweenType.easeOutQuad);
-        LeanTween.rotateZ(_settingBtn.gameObject, -1.75f, 1f).setEase(LeanTweenType.easeOutQuad);
+        _playBtn.gameObject.transform.DORotate(new Vector3(0, 0, -1.75f), 1f).SetEase(Ease.OutQuad);
+        _settingBtn.gameObject.transform.DORotate(new Vector3(0, 0, -1.75f), 1f).SetEase(Ease.OutQuad);
     }
     #endregion
+
+    private void UpdateHighestScoreDisplay()
+    {
+        int highestScore = PlayerPrefs.GetInt(CONSTANTS.HIGH_SCORE_KEY, 0);
+        if (_highestScoreTxt != null)
+        {
+            _highestScoreTxt.text = "High Score: " + highestScore.ToString();
+        }
+    }
 }

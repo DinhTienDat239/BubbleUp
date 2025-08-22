@@ -125,14 +125,9 @@ public class Bubble : MonoBehaviour
     {
         if (collision.gameObject.tag == "Goal" && _isAttached && !InGamePlayManager.instance.isSwitching)
         {
-
-            InGamePlayManager.instance.level++;
-            GameManager.instance.savedLevel = InGamePlayManager.instance.level;
-            if(InGamePlayManager.instance.level % 2 == 0)
-            {
-                GameDistribution.Instance.ShowAd();
-            }
-            InGamePlayManager.instance.over = true;
+            // Complete the level - this will advance to next level without losing lives
+            // Score will be calculated when advancing to next level
+            InGamePlayManager.instance.CompleteLevel();
         }
         if (collision.gameObject.tag == "Wind")
         {

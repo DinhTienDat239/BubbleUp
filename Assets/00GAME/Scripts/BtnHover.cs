@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class BtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
@@ -11,12 +12,12 @@ public class BtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        LeanTween.scale(button.gameObject, new Vector3(1.2f, 1.2f, 1.2f),0.25f);
+        button.gameObject.transform.DOScale(new Vector3(1.2f, 1.2f, 1.2f), 0.25f);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        LeanTween.scale(button.gameObject, Vector3.one, 0.25f);
+        button.gameObject.transform.DOScale(Vector3.one, 0.25f);
     }
 
 
