@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using TMPro;
 
 public class UIPlayScene : Singleton<UIPlayScene>
 {
@@ -15,20 +16,18 @@ public class UIPlayScene : Singleton<UIPlayScene>
     [SerializeField]
     Image _bulletTxt;
     [SerializeField]
-    Image _imageTxt;
-    [SerializeField]
     Image _livesTxt;
     
     [Header("Score Display")]
     [SerializeField]
     Image _scoreTxt;
-    [SerializeField]
-    Image _scoreLabel; // Optional: label for "SCORE" text
 
     [SerializeField]
-    GameObject endingScreen;
+    public RectTransform endingScreen;
     [SerializeField]
     Image endingBG;
+    [SerializeField]
+    TextMeshProUGUI _scoreText;
     [SerializeField]
     List<Sprite> endings = new List<Sprite>();
     [SerializeField]
@@ -36,9 +35,8 @@ public class UIPlayScene : Singleton<UIPlayScene>
     // Start is called before the first frame update
     void Start()
     {
-        endingScreen.gameObject.SetActive(false);
         _blackScreen.gameObject.SetActive(false);
-        endingScreen.SetActive(false);
+        endingScreen.gameObject.SetActive(false);
     }
     // Update is called once per frame
     void Update()
@@ -76,6 +74,7 @@ public class UIPlayScene : Singleton<UIPlayScene>
         
         // Update score display when score changes
         UpdateScoreDisplay();
+        UpdateHighestScoreDisplay();
     }
     
     private void UpdateScoreDisplay()
@@ -93,6 +92,14 @@ public class UIPlayScene : Singleton<UIPlayScene>
                 _scoreTxt.sprite = numbs[Mathf.Min(score, numbs.Count - 1)];
             }
         }
+    }private void UpdateHighestScoreDisplay()
+    {
+        int highestScore = InGamePlayManager.instance.GetCurrentScore();
+        if (_scoreText != null)
+        {
+            _scoreText.text = "Your Score: " + highestScore.ToString();
+        }
+        PlayerPrefs.SetInt("LASTSCORE", InGamePlayManager.instance.GetCurrentScore());
     }
     public void BlackSreenFadeIn()
     {
@@ -116,7 +123,7 @@ public class UIPlayScene : Singleton<UIPlayScene>
     }
     public IEnumerator PlayEndingIE()
     {
-        endingScreen.SetActive(true);
+        endingScreen.gameObject.SetActive(true);
         toMenu.gameObject.SetActive(false);
         int index = 0;
         while (index < endings.Count)

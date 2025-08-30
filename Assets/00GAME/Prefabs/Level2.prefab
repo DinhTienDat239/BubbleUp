@@ -953,11 +953,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2438093652282608047, guid: 7f3c48757b74e5b46bf214b6ff8dbf61, type: 3}
       propertyPath: moveTime
-      value: 1
+      value: 0.9
       objectReference: {fileID: 0}
     - target: {fileID: 2438093652282608047, guid: 7f3c48757b74e5b46bf214b6ff8dbf61, type: 3}
       propertyPath: standTime
-      value: 0.4
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 2438093652282608047, guid: 7f3c48757b74e5b46bf214b6ff8dbf61, type: 3}
       propertyPath: _leftPoint.x

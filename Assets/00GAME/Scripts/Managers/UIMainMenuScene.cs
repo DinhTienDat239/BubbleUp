@@ -50,6 +50,8 @@ public class UIMainMenuScene : MonoBehaviour
     Button _settingBtn;
     [SerializeField]
     TextMeshProUGUI _highestScoreTxt;
+    [SerializeField]
+    TextMeshProUGUI _lastScoreTxt;
     [Header("Cut Scene Components")]
     [SerializeField]
     GameObject cutSceneScreen;
@@ -317,6 +319,10 @@ public class UIMainMenuScene : MonoBehaviour
         if (_highestScoreTxt != null)
         {
             _highestScoreTxt.text = "High Score: " + highestScore.ToString();
+        }int lastScore = PlayerPrefs.GetInt("LASTSCORE", 0);
+        if (_lastScoreTxt != null)
+        {
+            _lastScoreTxt.text = "Last Score: " + lastScore.ToString();
         }
     }
 }

@@ -32,12 +32,11 @@ public class InGamePlayManager : Singleton<InGamePlayManager>
     public int level;
     [SerializeField]
     Transform LevelContainer;
+    [SerializeField]
+        List<int> available = new List<int>();
 
     [SerializeField]
     public List<GameObject> levelPrefabs = new List<GameObject>();
-
-    [SerializeField]
-    public List<int> bulletsPerLevel = new List<int>();
 
     private GameObject _currentLevelInstance;
     private Dictionary<int, int> _levelToPrefabIndex = new Dictionary<int, int>();
@@ -50,6 +49,8 @@ public class InGamePlayManager : Singleton<InGamePlayManager>
     private int _currentLives = 0;
     private Dictionary<int, int> _levelBulletCount = new Dictionary<int, int>();
     private bool _isLevelCompleted = false; // Track if level was completed vs lost
+    [SerializeField]
+    List<Heart> _listHeartUI = new List<Heart>();
     
     [Header("Score System")]
     private int _currentScore = 0;
@@ -107,7 +108,8 @@ public class InGamePlayManager : Singleton<InGamePlayManager>
 
             isSwitching = true;
             StartCoroutine(PlayOver());
-        }UpdateHighestScoreDisplay();
+        }
+        UpdateHighestScoreDisplay();
     }
     IEnumerator PlayOver()
     {
@@ -124,15 +126,10 @@ public class InGamePlayManager : Singleton<InGamePlayManager>
             level++;
             GameManager.instance.savedLevel = level;
             
-            if (level > 24)
-            {
-                UIPlayScene.instance.PlayEnding();
-            }
-            else
-            {
+            
                 // Spawn next level
                 SpawnCurrentLevel();
-            }
+            
             
             // Reset completion flag
             _isLevelCompleted = false;
@@ -140,6 +137,7 @@ public class InGamePlayManager : Singleton<InGamePlayManager>
         else
         {
             // Level was failed - decrease lives
+            UpdateLivesUI();
             _currentLives--;
             
             if (level > 24)
@@ -151,7 +149,12 @@ public class InGamePlayManager : Singleton<InGamePlayManager>
                 // No more lives - game over, check for high score
                 CheckAndSaveHighScore();
                 // Go to main menu
-                GameManager.instance.ChangeState(GameManager.GAME_STATE.MAINMENU);
+                //GameManager.instance.ChangeState(GameManager.GAME_STATE.MAINMENU);
+                BubbleController.instance.gameObject.SetActive(false);
+                UIPlayScene.instance.endingScreen.anchoredPosition = new Vector3(0,-3000,0);
+                UIPlayScene.instance.endingScreen.gameObject.SetActive(true);
+                UIPlayScene.instance.endingScreen.DOAnchorPos(new Vector3(0,0,0),0.25f);
+                Cursor.visible = true;
             }
             else
             {
@@ -236,17 +239,19 @@ public class InGamePlayManager : Singleton<InGamePlayManager>
         // No persistence: do not read PlayerPrefs
         // Build used set from current mappings
         HashSet<int> used = new HashSet<int>();
+        Debug.Log("???");
         foreach (var pair in _levelToPrefabIndex)
         {
             if (pair.Value >= 0 && pair.Value < levelPrefabs.Count)
                 used.Add(pair.Value);
         }
         // Build available list excluding used
-        List<int> available = new List<int>();
+        available = new List<int>();
         for (int i = 0; i < levelPrefabs.Count; i++)
         {
-            if (!used.Contains(i))
+            if (!used.Contains(i)){
                 available.Add(i);
+            }
         }
         if (available.Count == 0)
         {
@@ -256,8 +261,17 @@ public class InGamePlayManager : Singleton<InGamePlayManager>
                 available.Add(i);
             _levelToPrefabIndex.Clear();
         }
-        int chosen = available[Random.Range(0, available.Count)];
+        int chosen;
+        if(levelIndex == 0){
+            chosen = available[Random.Range(0, 3)];
+        }else
+        if(levelIndex <= 3){
+            chosen = available[Random.Range(0, 9 - levelIndex)];
+        }else
+            chosen = available[Random.Range(0, available.Count)];
+        
         _levelToPrefabIndex[levelIndex] = chosen;
+        Debug.Log(chosen);
         // No persistence: do not write PlayerPrefs
         return chosen;
     }
@@ -357,7 +371,11 @@ public class InGamePlayManager : Singleton<InGamePlayManager>
         if (_scoreText != null)
         {
             _scoreText.text = "Score: " + highestScore.ToString();
-        }
+        }PlayerPrefs.SetInt("LASTSCORE", _currentScore);
+    }
+    public void UpdateLivesUI(){
+        if(_currentLives >= 1)
+        _listHeartUI[_currentLives-1].isEmpty = true;
     }
     private int CalculateLevelScore()
     {
@@ -375,6 +393,7 @@ public class InGamePlayManager : Singleton<InGamePlayManager>
         
         // Final level score
         int finalLevelScore = Mathf.RoundToInt(baseScore * levelMultiplier);
+        
         
         return finalLevelScore;
     }

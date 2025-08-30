@@ -1010,7 +1010,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4424657018354712453, guid: 6e3a9beb512c6624b8400944b0bfe2f0, type: 3}
       propertyPath: firstTimeSpray
-      value: 2.2
+      value: 2.4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -1240,7 +1240,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   water: {fileID: 4491340216079841804}
-  waterPos: {x: 22.8, y: 4.53}
+  waterPos: {x: 3.58, y: 0.15}
   timeSpray: 7
   firstTimeSpray: 0
 --- !u!1 &7579005584556080774
@@ -1537,7 +1537,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   water: {fileID: 7579005584556080774}
-  waterPos: {x: 28.05, y: 0.63}
+  waterPos: {x: 3.58, y: 0.15}
   timeSpray: 5
   firstTimeSpray: 0
 --- !u!1001 &943180516633210103
